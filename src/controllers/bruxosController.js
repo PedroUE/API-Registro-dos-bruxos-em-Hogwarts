@@ -17,7 +17,7 @@ const getBruxosById = (req, res) => {
 
     const bruxo = bruxos.find(b => b.id === id);
 
-    if(bruxo) {
+    if(!bruxo) {
         res.status(404).json({
             sucess: false,
             message: `Nenhum bruxo foi encontrado no Beco Diagonal!`
@@ -32,15 +32,15 @@ const getBruxosById = (req, res) => {
 }
 
 const createBruxo = (req, res) => {
-    const {nome, casa, ano, varinha, mascote, patrono, especialidade} = req.body;
-
+    const {nome, casa, varinha, mascote, patrono, especialidade} = req.body;
+    const listaCasas = ["Grifinória", "Lufa-Lufa", "Sonserina", "Corvinal"];
+    
     if (!nome || !casa || !varinha || !mascote || !patrono || !especialidade) {
         return res.status(400).json ({
-            sucess: false,
+            success: false,
             menssage: `Feitiço mal executado! Verifique os ingredientes`
         });
     }
-
     const novoBruxo = {
         id: bruxos.length +1,
         nome: nome, 
@@ -49,15 +49,35 @@ const createBruxo = (req, res) => {
         mascote: mascote,
         patrono: patrono,
         especialidade: especialidade
-    }
+     }
 
-    bruxos.push(novoBruxo);
-    res.status(201).json({
+     const nomeJaExiste = bruxos.some(
+        (b) => b.nome.toLowerCase() === nome.toLowerCase()
+     );
+
+
+    if(casa) {
+        if(!listaCasas.includes(casa)) {
+            return res.status(400).json ({
+            success: false,
+            menssage: `A casa ${casa} não é valida. casas permitidas: ${listaCasas.join(", ")}.`
+        });
+    }
+}
+     if(nomeJaExiste) {
+        return res.status(409).json({ error: `Já existe um bruxo com o nome ${nome}.`})
+     }
+
+
+     bruxos.push(novoBruxo);
+        
+     res.status(201).json({
         sucess: true,
         menssage: "Novo bruxo matriculado em Hogwarts!",
         bruxo: novoBruxo
     });
 }
+
 
 const deleteBruxo = (req, res) => {
     const id = parseInt(req.params.id);
@@ -70,7 +90,16 @@ const deleteBruxo = (req, res) => {
             message: "O ID deve ser válido"
         });
     }
+const { admin } = req.body
 
+if(admin === false) {
+    return res.status(403).json({
+        status: 403,
+        success: false,
+        message: `Somente o Diretor pode executar essa magia!`,
+        error: "Authentication Denied"
+    });
+}
     const bruxosParaRemover = bruxos.find(b => b.id === id);
 
     if (!bruxosParaRemover) {
@@ -93,8 +122,9 @@ const deleteBruxo = (req, res) => {
 
 const updateBruxos = (req, res) => {
     const id = parseInt(req.params.id);
-    const {nome, casa, ano, varinha, mascote, patrono, especialidade} = req.body;
+    const {nome, casa, varinha, mascote, patrono, especialidade} = req.body;
     const idParaEditar = id;
+    const listaCasas = ["Grifinória", "Grifinoria", "Lufa-Lufa", "Sonserina", "Corvinal"];
 
     if(isNaN(idParaEditar)) {
         return res.status(400).json({
@@ -103,23 +133,7 @@ const updateBruxos = (req, res) => {
         });
     }
 
-    if(!nome || !casa || !varinha || !mascote || !patrono || !especialidade) {
-        return res.status(400).json({
-            success: false,
-            message: `Os itens acima são necessários para atualizar um bruxo!`
-        });
-    }
-
-    if(casa) {
-        if(!casa.include(casa.toLowerCase())) {
-            return res.status(400).json({
-                success: false,
-                message: `A casa deve ser uma das seguintes: ${casa.join(",")}`
-            })
-        }
-    }
-
-    const bruxoExistente = bruxos.find(bruxo => bruxo.id === id);
+  const bruxoExistente = bruxos.find(bruxo => bruxo.id === idParaEditar);
 
     if (!bruxoExistente) {
         return res.status(404).json({
@@ -127,7 +141,23 @@ const updateBruxos = (req, res) => {
             message: `Não é possível reparar o que não existe!`
         });
     }
-    
+
+    if(!nome || !varinha || !mascote || !patrono || !especialidade) {
+        return res.status(400).json({
+            success: false,
+            message: `Os itens acima são necessários para atualizar um bruxo!`
+        });
+    }
+
+    if(casa) {
+        if(!listaCasas.includes(casa)) {
+            return res.status(400).json ({
+            success: false,
+            menssage: `A casa ${casa} não é valida. casas permitidas: ${listaCasas.join(", ")}.`
+        });
+    }
+}
+
     const bruxoAtualizado = bruxos.map(bruxo => bruxo.id === idParaEditar ? {
         ...bruxo,
         ...(nome && {nome}),
@@ -141,7 +171,7 @@ const updateBruxos = (req, res) => {
         :bruxo
     );
 
-    bruxos.slice(0, bruxos.length, ...bruxoAtualizado);
+    bruxos.splice(0, bruxos.length, ...bruxoAtualizado);
 
     const bruxoEditado = bruxos.find (bruxo => bruxo.id === idParaEditar);
 
