@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export const encontreTodos = async () => {
     return await prisma.bruxo.findMany({
-        orderBy : { nome: 'asc' }
+        orderBy : { name: 'asc' }
     });
 }
 

@@ -1,8 +1,8 @@
-import * as BruxoModel from '../models/BruxoModel.js';
+import * as bruxoModel from "./../models/bruxoModel.js";
 
 export const listarTodos = async (req, res) => {
     try {
-        const bruxos = await BruxoModel.encontreTodos();
+        const bruxos = await bruxoModel.encontreTodos();
         
         if (!bruxos || bruxos.length === 0) {
             return res.status(404).json({
@@ -30,7 +30,7 @@ export const listarTodos = async (req, res) => {
 export const listarUm = async (req, res) => {
     try {
         const id = req.params.id;
-        const bruxo = await BruxoModel.encontreUm(id);
+        const bruxo = await bruxoModel.encontreUm(id);
 
         if (!bruxo) {
             return res.status(404).json({
