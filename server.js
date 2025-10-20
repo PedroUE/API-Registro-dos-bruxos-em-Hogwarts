@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import bruxosRoutes from "./src/routes/bruxosRoutes.js"
+import bruxosRoutes from "./src/routes/bruxoRoute.js"
 
 const app = express();
 app.use(express.json());
