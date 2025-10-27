@@ -5,5 +5,8 @@ const router = Router();
 
 router.get("/", bruxoController.listarTodos);
 router.get("/:id", bruxoController.listarUm);
+router.post("/", bruxoController.criar);
+router.delete("/", bruxoController.deletar);
+router.put("/:id", bruxoController.atualizar);
 
 export default router;
